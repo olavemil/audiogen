@@ -1,4 +1,5 @@
 export class KeyCode {
+
     static readonly ESCAPE: number = 27;
     static readonly SPACE: number = 32;
 
@@ -6,11 +7,16 @@ export class KeyCode {
     static readonly UP: number = 38;
     static readonly RIGHT: number = 39;
     static readonly DOWN: number = 40;
+    
+    static readonly NUM_MINUS: number = 109;
+    static readonly NUM_PLUS: number = 107;
+
+    static readonly REVERB: number = 16;
 }
 
 export class KeyState {
-    private readonly pressedKeys: Set<number>;
-    private readonly releasedKeys: Set<number>;
+    readonly pressedKeys: Set<number>;
+    readonly releasedKeys: Set<number>;
 
     constructor(
         pressedKeys: Set<number> = new Set<number>(),
@@ -29,6 +35,9 @@ export class KeyState {
     }
 
     update(added: Set<number>, removed: Set<number>): KeyState {
+        if (added.size == 0 && removed.size == 0) {
+            return this;
+        }
         var pressedKeys: Set<number> = this.pressedKeys;
         added.forEach(add => pressedKeys.add(add));
         removed.forEach(remove => pressedKeys.delete(remove));

@@ -1,0 +1,5 @@
+/build/
+/data/bundle.js
+/data/bundle.js.map
+!/src/deps/*.js
+.DS_Store

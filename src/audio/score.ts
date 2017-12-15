@@ -2,6 +2,7 @@ import {Track, Bar, MutableTrackConfig} from "track";
 import {AudioPlayer} from "audioplayer";
 
 export class Score {
+    private isPlaying: boolean = false;
     private tracks: Track[];
 
     private constructor(tracks: Track[]) {
@@ -49,6 +50,10 @@ export class Score {
     }
 
     play(player: AudioPlayer): void {
+        if (this.isPlaying) {
+            return;
+        }
+        this.isPlaying = true;
         for (let t = 0; t < this.tracks.length; t++) {
             const track: Track = this.tracks[t];
             const bars = track.bars;

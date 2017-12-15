@@ -3,13 +3,27 @@ import {Note} from "track";
 export class AudioPlayer {
     readonly ctx: AudioContext;
     readonly output: GainNode;
+    readonly reverb: ConvolverNode;
     readonly panners: {[track: number]:StereoPannerNode;} = {};
+    private reverbOn: boolean;
 
-    constructor(ctx: AudioContext) {
+    constructor(ctx: AudioContext, impulseResponse: string) {
         this.ctx = ctx;
+
+        this.reverb = ctx.createConvolver();
+        this.reverb.connect(ctx.destination);
+
+        this.reverb.buffer;
+        const self: AudioPlayer = this;
+        ctx.decodeAudioData(AudioPlayer.base64ToArrayBuffer(impulseResponse), function(buffer: AudioBuffer) {
+            self.reverb.buffer = buffer;
+        });
+
         this.output = ctx.createGain();
-        this.output.connect(ctx.destination);
-        this.output.gain.value = 0.5;
+        this.output.connect(this.reverb);
+        this.output.gain.value = 1;
+
+        this.reverbOn = true;
     }
 
     playSoundOnce(buffer: AudioBuffer, t: number): void {
@@ -35,6 +49,18 @@ export class AudioPlayer {
         oscillator.stop(note.t + note.d);
     }
 
+    toggleReverb(): void {
+        if (this.reverbOn) {
+            this.output.disconnect(this.reverb);
+            this.output.connect(this.ctx.destination);
+            this.reverbOn = false;
+        } else {
+            this.output.disconnect(this.ctx.destination);
+            this.output.connect(this.reverb);
+            this.reverbOn = true;
+        }
+    }
+
     static voice(voice: number): OscillatorType {
         switch(voice) {
             case 1: return 'square';
@@ -43,5 +69,15 @@ export class AudioPlayer {
             //case 4: return "custom";
             default: return 'sine';
         }
+    }
+    
+    private static base64ToArrayBuffer(base64: string): ArrayBufferLike {
+        var binaryString: string = window.atob(base64);
+        var len = binaryString.length;
+        var bytes: Uint8Array = new Uint8Array(len);
+        for (var i = 0; i < len; i++)        {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
     }
 }
