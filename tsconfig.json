@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "amd",
+        "sourceMap": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict":true,
+        "outFile": "data/bundle.js"
+    }
+}

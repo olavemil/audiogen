@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <style>
+            body, html {
+                overflow: hidden;
+                margin: 0px;
+                position: absolute;
+            }
+            #infoview {
+                background-color: #444444;
+                color: white;
+                opacity: 0.5;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 200px;
+                overflow: auto;
+                z-index: 10;
+            }
+        </style>
+    </head>
+
+    <body id="body">
+        <canvas id="canvas"></canvas>
+        
+        <script src="data/almond.js"></script>
+        <script src="data/bundle.js"></script>
+        <script>require("program");</script>
+    </body>
+</html>
