@@ -41,7 +41,7 @@ class Program {
         this.pendingReleasedKeyCodes = new Set<number>();
 
         if (keyState.released(KeyCode.SPACE)) {
-            this.score.togglePlay(this.audioPlayer);
+            this.score.play(this.audioPlayer);
         }
 
         this.keyboard.update(keyState);

@@ -154,19 +154,20 @@ export class KeyBoard {
     }
 
     readonly instruments: number[] = [
-        97,//1 - pad
-        98,//2 - piano
-        /*99,//3
-        100,//4
-        101,//5
-        102,//6
-        103,//7
-        104,//8
-        105//9*/
+        97,//0 - pad
+        98,//1 - piano
+        99,//2 - random
+        100,//3
+        101,//4
+        102,//5
+        103,//6
+        104,//7
+        105//8
     ];
 
     waveForInstrument(instrument: number): WaveDefinition {
         switch (instrument) {
+            case 2:return this.random();
             case 1:return this.piano();
             case 0:
             default:return this.pad();
@@ -225,6 +226,46 @@ export class KeyBoard {
             if (random.bool(v)) {
                 imag[k] = (-1)**(3*k) * v;
             }
+        }
+
+        return new WaveDefinition(real, imag);
+    }
+    
+    random(s: number = new Date().getTime()): WaveDefinition {        
+        const random: Random = new Random(s);
+        const n: number = random.intRange(4, 64);
+
+        var real = new Float32Array(n);
+        const imag = new Float32Array(n);
+
+        imag.fill(0);
+        real.fill(0);
+
+        const t: number = random.floatRange(0, 1, 2);
+        for (let k = 0; k < n; k++) {
+            if (random.bool(t)) {
+                continue;
+            }
+            real[k] = 1 - random.floatRange(-1, 1, n-k);
+            imag[k] = 1 - random.floatRange(-1, 1, k);
+        }
+        const smoothing = random.intRange(5);
+        const window = 2;
+        
+        var real_t = new Float32Array(n);
+
+        for (let i = 0; i < smoothing; i++) {
+            for (let k = window; k < n-window; k++) {
+                var avg: Complex = new Complex(real[k-1], imag[k-1]);
+                for (let j = k-window; j < k+window; j++) {
+                    avg = avg.add(new Complex(real[j], imag[j]))                    
+                }
+                avg = avg.divr(3);
+                real_t[k] = avg.real;
+                //imag[k] = avg.imag;
+            }
+            real = real_t;
+            real_t = new Float32Array(n);
         }
 
         return new WaveDefinition(real, imag);
