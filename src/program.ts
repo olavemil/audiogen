@@ -32,7 +32,7 @@ class Program {
         var lastTime: number = Date.now();
         var timer:number = window.setInterval(() => {
             this.mainloop(keyState, Date.now());
-        }, 40);
+        }, 24);
     }
 
     mainloop(prevKeyState: KeyState, t: number): void {

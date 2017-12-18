@@ -29,16 +29,17 @@ class Key {
 }
 
 export class KeyBoard {
+    private instrument: number;
     private waveDef: WaveDefinition;
     private currentWave: PeriodicWave;
-    private readonly keyByCode: {[key:number]:Key} = {};
-    private readonly audioPlayer: AudioPlayer;
+    readonly keyByCode: {[key:number]:Key} = {};
+    readonly audioPlayer: AudioPlayer;
     private octave: number = 0;
     private static readonly octaveLimit = 3;
 
     constructor(audioPlayer: AudioPlayer) {
         this.audioPlayer = audioPlayer;
-        this.waveDef = this.pad();
+        this.waveDef = this.random(4);
         this.currentWave = this.wave(this.waveDef, this.audioPlayer.ctx);
     }
     
@@ -51,7 +52,8 @@ export class KeyBoard {
             } else if (stopped == KeyCode.REVERB) {
                 this.audioPlayer.toggleReverb();
             } else if (this.instruments.indexOf(stopped) >= 0) {
-                this.waveDef = this.waveForInstrument(this.instruments.indexOf(stopped));
+                this.instrument = this.instruments.indexOf(stopped);
+                this.waveDef = this.waveForInstrument(this.instrument);
                 this.currentWave = this.wave(this.waveDef, this.audioPlayer.ctx);
             } else {
                 this.stop(stopped);
@@ -153,6 +155,10 @@ export class KeyBoard {
         return this.waveDef;
     }
 
+    getInstrument(): number {
+        return this.instrument;
+    }
+
     readonly instruments: number[] = [
         97,//0 - pad
         98,//1 - piano
@@ -174,8 +180,7 @@ export class KeyBoard {
         }
     }
     
-    piano(): WaveDefinition {
-        const n = 32;
+    piano(n: number = 32): WaveDefinition {
         const real = new Float32Array(n);
         const imag = new Float32Array(n);
 
@@ -233,7 +238,7 @@ export class KeyBoard {
     
     random(s: number = new Date().getTime()): WaveDefinition {        
         const random: Random = new Random(s);
-        const n: number = random.intRange(4, 64);
+        const n: number = Math.min(random.intRange(4, 32), random.intRange(32));
 
         var real = new Float32Array(n);
         const imag = new Float32Array(n);
@@ -243,13 +248,20 @@ export class KeyBoard {
 
         const t: number = random.floatRange(0, 1, 2);
         for (let k = 0; k < n; k++) {
-            if (random.bool(t)) {
+            if (random.bool(0.3)) {
                 continue;
             }
-            real[k] = 1 - random.floatRange(-1, 1, n-k);
-            imag[k] = 1 - random.floatRange(-1, 1, k);
+            var factor = (1 - k / (n * 2));
+            factor *= factor;
+
+            if (random.bool(0.3) && k > 1) {
+                factor *= real[k-1];
+            }
+
+            real[k] = (1 - random.floatRange(-1, 1, n-k)) * factor;
+            imag[k] = (1 - random.floatRange(-1, 1, k)) * factor;
         }
-        const smoothing = random.intRange(5);
+        const smoothing = random.intRange(3, 9);
         const window = 2;
         
         var real_t = new Float32Array(n);

@@ -5,7 +5,7 @@ export class AudioPlayer {
     readonly output: GainNode;
     readonly reverb: ConvolverNode;
     readonly panners: {[track: number]:StereoPannerNode;} = {};
-    private reverbOn: boolean;
+    reverbOn: boolean;
 
     constructor(ctx: AudioContext, impulseResponse: string) {
         this.ctx = ctx;
